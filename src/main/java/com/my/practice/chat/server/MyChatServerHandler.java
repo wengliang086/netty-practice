@@ -12,7 +12,7 @@ public class MyChatServerHandler extends SimpleChannelInboundHandler<String> {
     private static ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         Channel channel = ctx.channel();
         channelGroup.forEach(ch -> {
             if (ch == channel) {
@@ -26,6 +26,7 @@ public class MyChatServerHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
+        // 广播，通知所有客户端
         channelGroup.writeAndFlush("【服务器】- " + channel.remoteAddress() + " 加入\n");
         channelGroup.add(channel);
     }
@@ -33,7 +34,9 @@ public class MyChatServerHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
+        // 广播，通知所有客户端
         channelGroup.writeAndFlush("【服务器】- " + channel.remoteAddress() + " 离开\n");
+//        channelGroup.remove(channel) // remove方法netty会自动调用，无需在这里专门调用
         System.out.println(channelGroup.size());
     }
 

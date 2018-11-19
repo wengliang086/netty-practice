@@ -19,16 +19,19 @@ public class MyChatClient {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(eventLoopGroup)
                     .channel(NioSocketChannel.class)
-                    .handler(new MyChatServerInitializer());
+                    .handler(new MyChatClientInitializer());
             ChannelFuture channelFuture = bootstrap.connect("localhost", 8899).sync();
             Channel channel = channelFuture.channel();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
             while (true) {
-                System.out.println("readLine");
-                channel.writeAndFlush(bufferedReader.readLine() + "\r\n");
+                String readMsg = bufferedReader.readLine() + "\r\n";
+                System.out.println("readMsg=" + readMsg);
+                channel.writeAndFlush(readMsg);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            eventLoopGroup.shutdownGracefully();
         }
     }
 }
